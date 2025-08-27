@@ -1,0 +1,48 @@
+services:
+  strem-laravel:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: strem-laravel
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/var/www/html
+      - laravel-storage:/var/www/html/storage
+      - laravel-cache:/var/www/html/bootstrap/cache
+    depends_on:
+      - postgres
+    networks:
+      - external_network
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: strem
+      DB_USERNAME: strem
+      DB_PASSWORD: root
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: strem
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: strem
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - external_network
+
+volumes:
+  postgres-data:
+  laravel-storage:
+  laravel-cache:
+
+
+networks:
+  external_network:
+    driver: bridge
